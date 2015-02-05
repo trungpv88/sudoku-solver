@@ -16,7 +16,7 @@ else
     print ng
 end
 time_execution = toc;
-dlmwrite('solution.dat', states)
+dlmwrite('solution.csv', states)
 end
 
 function s = solve(grid)
