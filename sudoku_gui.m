@@ -22,7 +22,7 @@ function varargout = sudoku_gui(varargin)
 
 % Edit the above text to modify the response to help sudoku_gui
 
-% Last Modified by GUIDE v2.5 05-Feb-2015 15:16:09
+% Last Modified by GUIDE v2.5 06-Feb-2015 07:00:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -124,16 +124,10 @@ is_solved = false;
 is_play = false;
 backtracking_timer = timer();
 backtracking_counter = 0;
-data = [0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;
-        0 0 0 0 0 0 0 0 0;];
+data = cell(9, 9);
 set(handles.sudokutable, 'Data', data);
+
+
 
 % --- Executes on button press in btnSolve.
 function btnSolve_Callback(hObject, eventdata, handles)
@@ -151,6 +145,7 @@ if is_solved
     set(handles.sudokutable, 'Data', data(last_mat_start:last_mat_end,:));
 else
     input_data = get(handles.sudokutable,'Data');
+    input_data = cell_to_mat(input_data);
     output_data = sudoku_solver(input_data);
     if isequal(input_data, output_data)
         warndlg('No solution!!','!! Warning !!')
@@ -197,7 +192,7 @@ backtracking_counter = backtracking_counter + 1;
 start_row = (backtracking_counter - 1) * 9 + 1;
 end_row = start_row + 8;
 current_state = data(start_row:end_row,:);
-set(handles.sudokutable, 'Data', current_state);
+set(handles.sudokutable, 'Data', mat_to_cell(current_state));
 if backtracking_counter == length(data) / 9
     stop_backtracking(handles);
     backtracking_counter = 0;
@@ -222,6 +217,7 @@ function btnExample_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global is_solved;
+global backtracking_counter;
 is_solved = false;
 data = dlmread('examples.csv');
 nb_examples = length(data) / 9;
@@ -229,8 +225,10 @@ example_id = randi([1, nb_examples]);
 start_row = (example_id - 1) * 9 + 1;
 end_row = (example_id - 1) * 9 + 9;
 example = data(start_row:end_row,:);
-set(handles.sudokutable, 'Data', example);
+set(handles.sudokutable, 'Data', mat_to_cell(example));
 set(handles.btnPlay, 'Enable', 'off');
+delete('solution.csv')
+backtracking_counter = 0;
 
 
 
@@ -268,3 +266,32 @@ function sudoku_gui_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 delete(hObject);
+
+
+
+function su_cell = mat_to_cell(su_mat)
+len = length(su_mat);
+su_cell = cell(len, len);
+for i=1:len
+    for j=1:len
+        if su_mat(i, j) ~= 0
+            su_cell{i, j} = su_mat(i, j);
+        end
+    end
+end
+
+
+
+function su_mat = cell_to_mat(su_cell)
+len = length(su_cell);
+su_mat = zeros(len, len);
+for i=1:len
+    for j=1:len
+        if ~isempty(su_cell{i, j})
+            su_mat(i, j) = su_cell{i, j};
+        end
+    end
+end
+
+
+
