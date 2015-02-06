@@ -227,7 +227,9 @@ end_row = (example_id - 1) * 9 + 9;
 example = data(start_row:end_row,:);
 set(handles.sudokutable, 'Data', mat_to_cell(example));
 set(handles.btnPlay, 'Enable', 'off');
-delete('solution.csv')
+if exist('solution.csv')
+    delete('solution.csv')
+end
 backtracking_counter = 0;
 
 
